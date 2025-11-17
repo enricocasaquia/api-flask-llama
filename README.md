@@ -11,7 +11,9 @@ Projeto: API REST em Flask que integra um modelo LLama (ou Ollama) para chat. In
 ## Setup (PowerShell)
 1. Clonar / abrir pasta do projeto. Por exemplo:
    ```
-   cd C:\Python\api-flask-llama
+   cd C:\Python\
+
+   C:\Python git clone https://github.com/enricocasaquia/api-flask-llama.git`
    ```
 
 2. Criar e ativar virtualenv:
@@ -25,11 +27,6 @@ Projeto: API REST em Flask que integra um modelo LLama (ou Ollama) para chat. In
    pip install -r requirements.txt
    ```
 
-4. Criar modelo do ollama dentro da pasta `conf`:
-   ```
-   C:\Python\api-flask-llama\conf>ollama create grupocriar -f ./Modelfile
-   ```
-
 ## Arquivos de configuração
 - conf/config.json — configurações da aplicação (exemplo mínimo):
   ```json
@@ -38,7 +35,8 @@ Projeto: API REST em Flask que integra um modelo LLama (ou Ollama) para chat. In
     "SQLALCHEMY_TRACK_MODIFICATIONS": false,
     "JWT_SECRET_KEY": "troque_esta_chave_para_producao",
     "JWT_BLACKLIST_ENABLED": true,
-    "JWT_VERIFY_SUB": false
+    "JWT_VERIFY_SUB": false,
+    "OLLAMA_MODEL": "nome_modelo_ollama"
   }
   ```
 - conf/Modelfile — configurações do comportamento do modelo (já incluído no repo).
@@ -48,6 +46,10 @@ Ajuste os valores adequadamente antes de executar em produção.
 
 ## Executar a aplicação (desenvolvimento)
 1. Certifique-se que o virtualenv está ativado.
+2. Criar modelo do ollama dentro da pasta `conf`:
+   ```
+   C:\Python\api-flask-llama\conf>ollama create "nome_modelo_ollama" -f ./Modelfile
+   ```
 2. Rodar:
    ```
    python app.py
@@ -64,6 +66,7 @@ Ajuste os valores adequadamente antes de executar em produção.
 - POST `/login` — Login (retorna token JWT)
 - POST `/logout` — Logout (blacklist)
 - POST `/chat` — Endpoint de chat (resources.chat) — ver formato esperado nas rotas
+- GET `/metrics` — Endpoint para buscar as métricas de execução (resources.metrics)
 
 Consulte os arquivos em `resources/` para payloads e exemplos.
 
@@ -73,7 +76,7 @@ Consulte os arquivos em `resources/` para payloads e exemplos.
 
 ## Estrutura do projeto
 - app.py — aplicação Flask principal
-- resources/ — endpoints REST (user, chat)
+- resources/ — endpoints REST (user, chat, metrics)
 - models/ — modelos ORM
 - sql_alchemy.py — instancia do SQLAlchemy
 - conf/ — configurações (config.json, flasgger.json, Modelfile)

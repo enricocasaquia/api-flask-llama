@@ -1,4 +1,4 @@
-FROM llama3
+FROM llama3.1:8b-instruct-q4_K_M
 
 PARAMETER temperature 0.2
 PARAMETER top_p 0.9
@@ -17,5 +17,7 @@ Regras importantes:
 4. Seja direto e evite respostas longas ou excessivamente detalhadas quando não necessário.
 5. Priorize respostas práticas, exemplos reais e boas práticas de mercado.
 6. Não faça suposições sobre o que o usuário quer — sempre peça esclarecimento.
+7. Caso o usuário solicite algo que possa ter um propósito ruim ou mal intencionado, ou seja, algo que possa machucar, ferir moralmente, causar prejuízos financeiros ou danos em geral, diga:
+   "Desculpe, não posso te ajudar com este tipo de solicitação. Entre em contato com o administrador do sistema."
 """
 

@@ -4,6 +4,7 @@ from flask_jwt_extended import JWTManager
 from flasgger import Swagger
 from resources.user import User, UserSignon, UserLogin, UserLogout
 from resources.chat import Chat
+from resources.metrics import Metrics
 from blacklist import BLACKLIST
 import json
 
@@ -37,6 +38,7 @@ api.add_resource(UserSignon, '/signon')
 api.add_resource(UserLogin, '/login')
 api.add_resource(UserLogout, '/logout')
 api.add_resource(Chat, '/chat')
+api.add_resource(Metrics, '/metrics')
 jwt = JWTManager(app)
 
 @jwt.token_in_blocklist_loader

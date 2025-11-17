@@ -3,5 +3,6 @@
     "SQLALCHEMY_TRACK_MODIFICATIONS": false,
     "JWT_SECRET_KEY": "",
     "JWT_BLACKLIST_ENABLED": true,
-    "JWT_VERIFY_SUB": false
+    "JWT_VERIFY_SUB": false,
+    "OLLAMA_MODEL": ""
 }
