@@ -4,5 +4,6 @@
     "JWT_SECRET_KEY": "",
     "JWT_BLACKLIST_ENABLED": true,
     "JWT_VERIFY_SUB": false,
-    "OLLAMA_MODEL": ""
+    "OLLAMA_MODEL": "",
+    "CONTEXT_WINDOW_SIZE": 10
 }
