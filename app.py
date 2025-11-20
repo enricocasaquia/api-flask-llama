@@ -21,10 +21,6 @@ app.config['JWT_SECRET_KEY'] = config['JWT_SECRET_KEY']
 app.config['JWT_BLACKLIST_ENABLED'] = config['JWT_BLACKLIST_ENABLED']
 app.config['JWT_VERIFY_SUB'] = config['JWT_VERIFY_SUB']
 
-@app.route('/')
-def index():
-    return '<h1>API de Integração com OLLAMA</h1>'
-
 @app.before_request
 def create_database():
     app.before_request_funcs[None].remove(create_database)

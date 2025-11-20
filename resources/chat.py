@@ -12,9 +12,9 @@ import ollama
 with open("./conf/config.json") as config_json:
     config = json.load(config_json)
 
-client = ollama.Client()
-model = config['OLLAMA_MODEL']
-context_window_size = config['CONTEXT_WINDOW_SIZE']
+CLIENT = ollama.Client()
+MODEL_NAME = config['OLLAMA_MODEL']
+CONTEXT_SIZE = config['CONTEXT_WINDOW_SIZE']
 
 class Chat(Resource):
     @jwt_required()
@@ -47,11 +47,11 @@ class Chat(Resource):
             cpu_before = psutil.cpu_percent(interval=None)
             ram_before = psutil.virtual_memory().used / (1024 * 1024)
             
-            history = ChatHistoryModel.find_history_user(user_id, context_window_size)
+            history = ChatHistoryModel.find_history_user(user_id, CONTEXT_SIZE)
             prompts = [{'role': h.role, 'content': h.content} for h in history]
             prompts.append({'role': 'user', 'content': user_prompt})
             
-            response = client.chat(model=model, messages=prompts, stream=False)
+            response = CLIENT.chat(model=MODEL_NAME, messages=prompts, stream=False)
             assistant_response = response["message"]["content"]
             
             end = time.time()
