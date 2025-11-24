@@ -61,7 +61,6 @@ class User(Resource):
                     'message': 'User successfully deleted.'
                 }, 200
             except Exception as e:
-                print(f"Error deleting user: {e}")
                 return {'message': 'Error deleting user.'}, 500
         else: return {'message':'User not found.'}, 404
         
@@ -102,7 +101,6 @@ class UserSignon(Resource):
             }, 201
         except Exception as e:
             user.delete_user()
-            print(f"Error creating user: {e}")
             return {'message': 'Error creating user.'}, 500
     
     @jwt_required()
@@ -142,7 +140,6 @@ class UserSignon(Resource):
                     'message': 'User successfully updated.'
                 }, 200
             except Exception as e:
-                print(f"Error updating user: {e}")
                 return {'message': 'Error updating user.'}, 500
         else: return {'message':'User not found.'}, 404
 
@@ -171,17 +168,24 @@ class UserLogin(Resource):
             description: Login or password are invalid
           409:
             description: Inactive user
+          500:
+            description: Error during the login with the user
         """
-        data = UserModel.parse_user()
-        user = UserModel.find_user_login(data['login'])
-        if user and UserModel.check_password(data['password'],user.password):
-            if user.active == True:
-                token = create_access_token(identity=user.id)
-                return {
-                    'token': f'Bearer {token}'
-                }, 200
-            return {'message': 'Inactive user.'}, 409
-        return {'message': 'Login or password are invalid.'}, 401
+        try:
+          data = UserModel.parse_user()
+          user = UserModel.find_user_login(data['login'])
+          if user and UserModel.check_password(data['password'],user.password):
+              if user.active == True:
+                  token = create_access_token(identity=user.id)
+                  return {
+                      'token': f'Bearer {token}'
+                  }, 200
+              return {'message': 'Inactive user.'}, 409
+          return {'message': 'Login or password are invalid.'}, 401
+        except Exception as e:
+            return {
+                'message': 'Error during the login with the user.'
+            }, 500
     
 class UserLogout(Resource):
     @jwt_required()
@@ -202,8 +206,12 @@ class UserLogout(Resource):
           500:
             description: Error logging out
         """
-        jwt = get_jwt()['jti']
-        if jwt:
-            BLACKLIST.add(jwt)
-            return {'message':'User successfully logged out.'}, 200
-        return {'message': 'Error logging out.'}, 500
+        try:
+          jwt = get_jwt()['jti']
+          if jwt:
+              BLACKLIST.add(jwt)
+              return {'message':'User successfully logged out.'}, 200
+        except Exception as e:
+            return {
+                'message': 'Error logging out.'
+            }, 500

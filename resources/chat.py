@@ -13,8 +13,8 @@ with open("./conf/config.json") as config_json:
     config = json.load(config_json)
 
 CLIENT = ollama.Client()
-MODEL_NAME = config['OLLAMA_MODEL']
-CONTEXT_SIZE = config['CONTEXT_WINDOW_SIZE']
+MODEL_NAME = config.get('OLLAMA_MODEL', 'llama3.1:8b-instruct-q4_K_M')
+CONTEXT_SIZE = config.get('CONTEXT_WINDOW_SIZE', 10)
 
 class Chat(Resource):
     @jwt_required()
