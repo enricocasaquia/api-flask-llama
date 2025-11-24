@@ -1,11 +1,11 @@
-import click
-import json
-import sys
-import ollama
 from app import app
 from sql_alchemy import db
 from models.user import UserModel
 from models.history import ChatHistoryModel
+import click
+import json
+import sys
+import ollama
 
 with open("./conf/config.json") as config_json:
     config = json.load(config_json)

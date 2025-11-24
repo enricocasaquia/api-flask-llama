@@ -1,3 +1,14 @@
+import subprocess
+import sys
+from pathlib import Path
+
+if not Path("venv").exists():
+    print("Primeira execução detectada. Rodando setup...")
+    subprocess.check_call([sys.executable, "setup.py"])
+    sys.exit(1)
+    
+subprocess.check_call([sys.executable, "setup.py"])
+
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
@@ -7,6 +18,13 @@ from resources.chat import Chat, ChatDelete
 from resources.metrics import Metrics
 from blacklist import BLACKLIST
 import json
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 with open("./conf/config.json") as config_json:
     config = json.load(config_json)
@@ -49,4 +67,4 @@ def invalidate_token(jwt_header, jwt_payload):
 if __name__ == '__main__':
     from sql_alchemy import db
     db.init_app(app)
-    app.run(debug=True)
+    app.run(debug=config['FLASK_DEBUG'])
