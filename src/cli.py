@@ -2,16 +2,14 @@ from app import app
 from sql_alchemy import db
 from models.user import UserModel
 from models.history import ChatHistoryModel
+from config import CONFIG
 import click
-import json
 import sys
 import ollama
 
-with open("./conf/config.json") as config_json:
-    config = json.load(config_json)
 
-MODEL_NAME = config.get('OLLAMA_MODEL', 'llama3.1:8b-instruct-q4_K_M')
-CONTEXT_SIZE = config.get('CONTEXT_WINDOW_SIZE', 10)
+MODEL_NAME = CONFIG.get('OLLAMA_MODEL', 'MODELO_LLM')
+CONTEXT_SIZE = CONFIG.get('CONTEXT_WINDOW_SIZE', 10)
 
 db.init_app(app)
 

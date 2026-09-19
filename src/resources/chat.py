@@ -3,18 +3,17 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.chat import ChatModel
 from models.history import ChatHistoryModel
 from models.metrics import MetricsModel
+from config import CONFIG
 import json
 import time
 import psutil
 import GPUtil
 import ollama
 
-with open("./conf/config.json") as config_json:
-    config = json.load(config_json)
 
 CLIENT = ollama.Client()
-MODEL_NAME = config.get('OLLAMA_MODEL', 'llama3.1:8b-instruct-q4_K_M')
-CONTEXT_SIZE = config.get('CONTEXT_WINDOW_SIZE', 10)
+MODEL_NAME = CONFIG.get('OLLAMA_MODEL', 'llama3.1:8b-instruct-q4_K_M')
+CONTEXT_SIZE = CONFIG.get('CONTEXT_WINDOW_SIZE', 10)
 
 class Chat(Resource):
     @jwt_required()

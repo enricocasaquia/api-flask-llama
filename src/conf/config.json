@@ -1,10 +1,9 @@
 {
     "FLASK_DEBUG": false,
-    "SQLALCHEMY_DATABASE_URI": "sqlite:///api_flask_llama.db",
     "SQLALCHEMY_TRACK_MODIFICATIONS": false,
-    "JWT_SECRET_KEY": "",
+    "JWT_SECRET_KEY": "troque_esta_chave_para_producao",
     "JWT_BLACKLIST_ENABLED": true,
     "JWT_VERIFY_SUB": false,
-    "OLLAMA_MODEL": "",
+    "OLLAMA_MODEL": "nome_modelo_ollama",
     "CONTEXT_WINDOW_SIZE": 10
 }

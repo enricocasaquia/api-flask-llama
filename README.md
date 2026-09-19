@@ -1,38 +1,34 @@
 # API Flask + LLama (api-flask-llama)
 
-Projeto: API REST em Flask que integra um modelo LLama (ou Ollama) para chat. Inclui autenticação JWT, banco SQLite via SQLAlchemy e endpoints para usuários e chat.
+API REST em Flask que integra um modelo Ollama para chat. Inclui autenticação JWT, banco SQLite via SQLAlchemy e endpoints para usuários e chat. Roda em dois containers Docker: a API e o Ollama.
 
 ## Pré-requisitos
-- Python 3.10+ (recomendado)
-- Ollama instalado: [https://ollama.com/](https://ollama.com/)
-- Git instalado: [https://git-scm.com/install/](https://git-scm.com/install/)
-- Espaço em disco suficiente se carregar modelos grandes localmente
+- Docker e Docker Compose
+- Espaço em disco suficiente para os modelos do Ollama (alguns GB por modelo)
 
-## Setup (PowerShell)
-1. Clonar / abrir pasta do projeto. Por exemplo:
-   ```
-   cd C:\Python\
+## Subindo o projeto
 
-   C:\Python git clone https://github.com/enricocasaquia/api-flask-llama.git`
-   ```
+```bash
+git clone https://github.com/enricocasaquia/api-flask-llama.git
+cd api-flask-llama
+docker compose up -d --build
+```
 
-2. Configuração da virtualenv e dependências:
-   ```
-   python setup.py
-   ```
+Isso sobe dois serviços:
+- **ollama** — servidor Ollama, expõe `11434`, mantém modelos em volume nomeado (`ollama_models`)
+- **api** — a aplicação Flask, expõe `5000`, cria/atualiza automaticamente o modelo customizado definido em `conf/Modelfile` na inicialização
 
-   Ou pode executar diretamente o:
-
-   ```
-   python app.py
-   ```
+Acompanhe os logs do setup:
+```bash
+docker compose logs -f api
+```
 
 ## Arquivos de configuração
-- conf/config.json — configurações da aplicação (exemplo mínimo):
-  ```json
+
+- `src/conf/config.json` — configurações da aplicação:
+```json
   {
     "FLASK_DEBUG": false,
-    "SQLALCHEMY_DATABASE_URI": "sqlite:///nome_do_banco_de_dados.db",
     "SQLALCHEMY_TRACK_MODIFICATIONS": false,
     "JWT_SECRET_KEY": "troque_esta_chave_para_producao",
     "JWT_BLACKLIST_ENABLED": true,
@@ -40,57 +36,62 @@ Projeto: API REST em Flask que integra um modelo LLama (ou Ollama) para chat. In
     "OLLAMA_MODEL": "nome_modelo_ollama",
     "CONTEXT_WINDOW_SIZE": 10
   }
-  ```
-- conf/Modelfile — configurações do comportamento do modelo (já incluído no repo).
-- conf/flasgger.json — template para documentação Swagger.
+```
+  A URI do banco (SQLite) é resolvida automaticamente em `src/config.py`, relativa a `src/instance/` — não precisa (nem deve) ser definida aqui.
 
-Ajuste os valores adequadamente antes de executar em produção.
+- `src/conf/Modelfile` — define o modelo Ollama customizado (base, parâmetros, system prompt). Usa sintaxe padrão de Modelfile do Ollama (`FROM`, `PARAMETER`, `SYSTEM`).
+- `src/conf/flasgger.json` — template do Swagger.
 
-## Executar a aplicação (desenvolvimento)
-1. Certifique-se que o virtualenv está ativado.
-2. Rodar:
-   ```
-   python app.py
-   ```
+Variável de ambiente `OLLAMA_HOST` (já configurada no `docker-compose.yaml`) aponta a API pro serviço `ollama` da rede interna.
 
-3. Documentação e interface para testes ficará disponível pelo Flasgger em:
-   - http://127.0.0.1:5000/apidocs/
+## Documentação da API
 
-4. A execução também pode ser feita via interação do terminal ao rodar:
-   ```
-   python cli.py
-   ```
+Com os containers de pé:
+- http://127.0.0.1:5000/apidocs/
 
 ## Endpoints principais
-- POST `/signon` — Criar usuário (ver resources.user)
-- POST `/login` — Login (retorna token JWT)
-- POST `/logout` — Logout (blacklist)
-- POST `/chat` — Endpoint de chat (resources.chat) — ver formato esperado nas rotas
-- POST `/chat/delete` — Endpoint de fim de chat (resources.chat)
-- GET `/metrics` — Endpoint para buscar as métricas de execução (resources.metrics)
+- POST `/signon` — criar usuário
+- POST `/login` — login (retorna token JWT)
+- POST `/logout` — logout (blacklist)
+- POST `/chat` — envia prompt ao modelo, mantém histórico por usuário
+- POST `/chat/delete` — limpa histórico de conversa do usuário
+- GET `/metrics` — métricas de execução (tokens, tempo de inferência, CPU/GPU)
 
-Consulte os arquivos em `resources/` para payloads e exemplos.
+Consulte `src/resources/` para os payloads esperados de cada rota.
 
-## Testes e DB
-- O projeto cria o banco via `sql_alchemy.db.create_all()` no primeiro request.
-- Para resetar DB exclua `data.db` (ou a URI configurada).
+## CLI
+
+O projeto tem uma CLI pra gerenciar usuários e conversar pelo terminal, sem passar pela API HTTP:
+
+```bash
+docker compose exec api python cli.py create-user
+docker compose exec api python cli.py list-users
+docker compose exec api python cli.py delete-user <login>
+docker compose exec api python cli.py chat
+```
+
+## Banco de dados
+
+SQLite, persistido no volume `sqlite_data` (montado em `src/instance/` dentro do container `api`). Sobrevive a `docker compose down`; só é apagado com `docker compose down -v`.
 
 ## Estrutura do projeto
-- app.py — aplicação Flask principal
-- setup.py — preparação do ambiente
-- cli.py — execução local do programa via terminal
-- resources/ — endpoints REST (user, chat, metrics)
-- models/ — modelos ORM
-- sql_alchemy.py — instancia do SQLAlchemy
-- conf/ — configurações (config.json, flasgger.json, Modelfile)
-- requirements.txt — dependências
+```bash
+src/
+├── app.py # aplicação Flask principal
+├── config.py # carrega config.json e flasgger.json, resolve paths absolutos
+├── setup.py # cria/atualiza o modelo Ollama a partir do Modelfile, roda antes da API subir
+├── cli.py # CLI de gerenciamento e chat via terminal
+├── resources/ # endpoints REST (user, chat, metrics)
+├── models/ # modelos ORM
+├── sql_alchemy.py # instância do SQLAlchemy
+└── conf/ # config.json, flasgger.json, Modelfile
+Dockerfile
+docker-compose.yaml
+requirements.txt
+```
 
-## Melhorias e ideias futuras
-Infraestrutura e Produção
-- Containerização com Docker: Criar um Dockerfile e docker-compose.yml para facilitar a implantação, garantindo que o ambiente de execução (incluindo o Ollama) seja consistente.
-- WSGI para Produção: Substituir a execução nativa do Flask (app.run) por um WSGI Server de produção como Gunicorn ou Waitress, aumentando a estabilidade e a capacidade de lidar com múltiplas requisições simultâneas.
-- Configuração de GPU: Embora o setup do Ollama já suporte GPU, garantir que as imagens Docker ou o ambiente de produção tenham acesso direto aos drivers e recursos de placas NVIDIA (via NVIDIA Container Toolkit) ou AMD.
-
-Performance e Escalabilidade
-- Cache com Redis: Implementar um serviço de cache Redis para armazenar respostas recentes do LLM. Isso reduziria a latência e o uso de recursos de GPU/CPU para perguntas repetidas, melhorando a performance e reduzindo custos.
-- Persistência de Métricas: Atualmente, as métricas são armazenadas em memória na classe MetricsModel. Para análise histórica e visualização em dashboards, seria ideal armazenar estas informações no banco de dados.
+## Melhorias futuras
+- **WSGI de produção**: substituir `app.run()` por Gunicorn ou Waitress.
+- **GPU**: configurar o `docker-compose.yaml` com `nvidia` runtime para o serviço `ollama` acessar GPU.
+- **Cache com Redis**: reduzir latência/custo em prompts repetidos.
+- **Persistência de métricas**: hoje `MetricsModel` vive em memória (perdido a cada restart); mover para o banco.
