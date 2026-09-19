@@ -7,7 +7,7 @@ class ChatHistoryModel(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('TB_USER.id'), nullable = False)
     role = db.Column(db.String(20), nullable = False)
     content = db.Column(db.Text, nullable = False)
-    timestamp = db.Column(db.DateTime, nullable = False, default=datetime.now())
+    timestamp = db.Column(db.DateTime, nullable = False, default=datetime.now)
 
     def __init__(self, user_id, role, content):
         self.user_id = user_id

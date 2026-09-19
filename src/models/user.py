@@ -2,10 +2,6 @@ from flask_restful import reqparse
 from sql_alchemy import db
 import bcrypt
 from datetime import datetime
-import json
-
-with open("./conf/config.json") as config_json:
-    config = json.load(config_json)
 
 class UserModel(db.Model):
     __tablename__ = 'TB_USER'
@@ -13,8 +9,8 @@ class UserModel(db.Model):
     login = db.Column(db.String(50), nullable = False, unique = True)
     password = db.Column(db.String(255), nullable = False)
     active = db.Column(db.Boolean, nullable = False, default=True)
-    create_date = db.Column(db.DateTime, nullable = False, default=datetime.now())
-    modify_date = db.Column(db.DateTime, nullable = True, onupdate=datetime.now())
+    create_date = db.Column(db.DateTime, nullable = False, default=datetime.now)
+    modify_date = db.Column(db.DateTime, nullable = True, onupdate=datetime.now)
     
     def __init__(self, login, password, active):
         self.login = login
