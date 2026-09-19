@@ -1,9 +1,9 @@
 {
     "FLASK_DEBUG": false,
     "SQLALCHEMY_TRACK_MODIFICATIONS": false,
-    "JWT_SECRET_KEY": "a123sdxcc",
+    "JWT_SECRET_KEY": "troque_esta_chave_para_producao",
     "JWT_BLACKLIST_ENABLED": true,
     "JWT_VERIFY_SUB": false,
-    "OLLAMA_MODEL": "teste",
+    "OLLAMA_MODEL": "nome_modelo_ollama",
     "CONTEXT_WINDOW_SIZE": 10
 }
